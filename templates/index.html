@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网商园采集 / 闲鱼发布辅助</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">WSY</span>
+      <div>
+        <h1>网商园采集 / 闲鱼发布辅助</h1>
+        <p class="sub">下载与发布是两个独立流程，共用一个控制台</p>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge" id="badge-state">空闲</span>
+      <span class="badge badge-mode" id="badge-mode">测试模式</span>
+      <span class="badge badge-sim" id="badge-sim">模拟联调</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel actions">
+      <div class="action-block">
+        <div class="block-title">采集下载</div>
+        <button id="btn-download" class="btn primary">开始下载图片</button>
+        <p class="hint">网商园：5 家金牌档口 × 30 日新品男装 × 前 3 商品</p>
+      </div>
+      <div class="action-block">
+        <div class="block-title">发布服装</div>
+        <button id="btn-publish" class="btn primary">开始发布服装</button>
+        <p class="hint">仅处理已下载商品；描述 AI 生成，图片 4 张，单规格</p>
+      </div>
+      <div class="action-block">
+        <div class="block-title">运行控制</div>
+        <div class="btn-row">
+          <button id="btn-pause" class="btn">暂停</button>
+          <button id="btn-resume" class="btn">继续</button>
+          <button id="btn-stop" class="btn danger">停止</button>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="chk-test-mode" checked>
+          <span>测试模式（填写完成后截图，不真实发布）</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel status">
+      <div class="panel-head">
+        <h2>运行状态</h2>
+        <span class="muted" id="v-run-id">尚未开始</span>
+      </div>
+      <div class="status-grid">
+        <div class="kv"><span>当前任务</span><b id="v-task">—</b></div>
+        <div class="kv"><span>当前步骤</span><b id="v-step">—</b></div>
+        <div class="kv"><span>当前商品</span><b id="v-product">—</b></div>
+        <div class="kv"><span>当前店铺</span><b id="v-shop">—</b></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="counts">
+          <span>总数 <b id="v-total">0</b></span>
+          <span>已完成 <b id="v-done">0</b></span>
+          <span class="ok">成功 <b id="v-success">0</b></span>
+          <span class="err">失败 <b id="v-failed">0</b></span>
+          <span>跳过 <b id="v-skipped">0</b></span>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span>开始：<b id="v-started">—</b></span>
+        <span>结束：<b id="v-finished">—</b></span>
+        <span id="v-message" class="muted"></span>
+      </div>
+    </section>
+
+    <section class="panel human" id="human-banner" hidden>
+      <div class="human-text">
+        <strong>需要人工处理</strong>
+        <p id="human-reason"></p>
+        <p id="human-hint" class="muted"></p>
+      </div>
+      <button id="btn-human-done" class="btn primary">已处理，继续</button>
+    </section>
+
+    <section class="panel products">
+      <div class="panel-head">
+        <h2>商品清单</h2>
+        <div class="log-tools">
+          <span class="muted" id="v-product-summary">—</span>
+          <button id="btn-refresh-products" class="btn small">刷新</button>
+        </div>
+      </div>
+      <p class="hint">
+        “重置待发布”只影响本地发布队列，不会下架闲鱼已上架商品；“删除文件”会移除该商品的下载目录与清单记录，之后再次下载可重新抓取。
+      </p>
+      <div class="table-wrap">
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>商品</th>
+              <th>店铺</th>
+              <th>价格</th>
+              <th>下载</th>
+              <th>发布</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="product-rows">
+            <tr><td colspan="6" class="muted">加载中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel logs">
+      <div class="panel-head">
+        <h2>后台日志</h2>
+        <div class="log-tools">
+          <label class="toggle small">
+            <input type="checkbox" id="chk-autoscroll" checked>
+            <span>自动滚动</span>
+          </label>
+          <select id="sel-level">
+            <option value="ALL">全部级别</option>
+            <option value="INFO">INFO</option>
+            <option value="WARNING">WARNING</option>
+            <option value="ERROR">ERROR</option>
+          </select>
+          <button id="btn-clear-log" class="btn small">清屏（仅界面）</button>
+        </div>
+      </div>
+      <div class="log-list" id="log-list">
+        <div class="log-empty" id="log-empty">等待日志…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    账号、密码与 DeepSeek Key 仅保存在本地 .env；界面与日志只显示脱敏信息。测试模式不会产生真实帖子。
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

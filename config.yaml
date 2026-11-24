@@ -1,0 +1,122 @@
+# ===== 业务配置（非敏感）。敏感项见 .env =====
+mode:
+  test_mode: true              # 当前确认：不真实发布，用截图代替发布
+  headless: false              # 必须可见浏览器
+  keep_browser_open: false       # 任务结束关闭浏览器，避免多次运行留下多个窗口
+  simulated: false             # false=真实浏览器自动化
+
+browser:
+  engine: msedge
+  channel: msedge              # 使用本机 Edge，降低被识别为自动化浏览器的概率
+  user_data_dir: data/edge-profile-2
+  viewport: { width: 1440, height: 900 }
+  slow_mo_ms: 150
+  locale: zh-CN
+  timezone: Asia/Shanghai
+  storage_state_path: data/browser_state/state.json
+  accept_downloads: true
+
+timing:
+  delay_min: 1.5
+  delay_max: 4.0
+  page_load_timeout: 30
+  element_timeout: 15
+  download_timeout: 180         # 压缩包约 10MB，留足时间
+  upload_timeout: 60
+  between_products_min: 5.0
+  between_products_max: 12.0
+
+wangshangyuan:
+  base_url: https://www.wsy.com/
+  manual_login: true            # true=打开登录页后由人工登录一次（Edge 持久化目录会记住）
+  account_index: 2              # 1=主账号；2=备用账号（.env 中 WSY_USERNAME_2 / WSY_PASSWORD_2）
+  login_entry_text: "登录"
+  gold_stall_entry_text: "金牌档口"
+  shop_count: 5
+  product_count: 3
+  shop_batch_size: 2            # 每批最多访问的店铺数，降低触发频率限制
+  between_shops_min: 30         # 店铺之间休整（秒）
+  between_shops_max: 60
+  filter_new_days: 30
+  filter_category: "男装"
+  download_button_text: "一键下载"
+  detail_row_text: "当前的详情图,主图,颜色图:"
+  max_retries: 3
+  retry_backoff_sec: 2
+
+download:
+  root_dir: downloads
+  raw_subdir: raw
+  images_subdir: images
+  name_max_length: 80
+  keep_raw_archive: true
+  image_extensions: [".jpg", ".jpeg", ".png", ".webp"]
+  max_images_per_product: 4     # 已确认：只发布 4 张
+  extract_formats: [".zip", ".rar", ".7z"]
+
+xianyu:
+  home_url: https://www.goofish.com/
+  publish_url: https://www.goofish.com/publish
+  login_check_timeout: 20
+  publish_entry_text: "发布闲置"
+  login_requires_manual: auto
+  title_source: original        # 已确认：使用原商品标题
+  title_max_len: 30
+  desc_max_len: 1500            # 已确认：描述上限 1500 字
+  spec_mode: single             # 已确认：单规格
+  default_condition: "全新"
+  default_stock: 1
+  location_pick: first_nearby   # 已确认：优先第一个附近地址
+  max_images_upload: 4          # 已确认：4 张
+  wait_publish_success_timeout: 60
+
+pricing:
+  markup_type: percent          # 按比例小幅加价
+  markup_value: 10              # +10%
+  min_markup_amount: 1.0
+  min_price: 9.9
+  round_mode: ceil_to_0_1
+  currency_symbol: "¥"
+
+deepseek:
+  enabled: true
+  temperature: 0.8
+  max_tokens: 800
+  timeout_sec: 30
+  retry: 2
+  fallback_to_template: true
+  style_keywords: ["口语化", "真实感受", "分点短句", "不夸张", "学生党/日常通勤"]
+  forbidden_keywords: ["微信", "QQ", "加V", "第一", "最便宜", "全网最低", "绝对"]
+  template: |
+    【{title}】
+    全新未拆，实拍如图，单规格，颜色/尺码以实拍为准。
+    - 面料：{fabric}
+    - 版型：{fit}
+    - 适合：日常通勤、学生党
+    喜欢直接拍，当天发货～
+
+logging:
+  level: INFO
+  console: true
+  file: logs/app.log
+  structured_file: logs/structured.jsonl
+  screenshot_dir: logs/screenshots
+  buffer_size: 2000
+  ui_poll_interval_ms: 2000
+
+job:
+  max_product_total: 15
+  stop_on_first_failure: false
+  skip_existing_success: true
+  retry_per_step: 2
+  retry_backoff_sec: 2
+  human_timeout_sec: 0
+
+login:
+  cooldown_minutes: 30          # 两次登录之间的最小间隔，避免账号被标记
+  max_per_run: 1                # 单次任务最多登录次数
+
+server:
+  host: 127.0.0.1
+  port: 5000
+  debug: false

@@ -1,0 +1,29 @@
+# 敏感与运行时产物
+.env
+账户密码.txt
+*.key
+
+# 个人工作记录（含账号切换/店铺与验收细节，不随仓库发布）
+docs/PROJECT_MEMORY.md
+docs/PROGRESS.md
+
+# 开发期临时脚本
+tools/_*.py
+
+# 下载、日志、浏览器与运行数据（含登录态/截图/本地路径，勿提交）
+downloads/
+logs/
+data/
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
