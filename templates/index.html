@@ -27,7 +27,11 @@
       <div class="action-block">
         <div class="block-title">采集下载</div>
         <button id="btn-download" class="btn primary">开始下载图片</button>
-        <p class="hint">网商园：5 家金牌档口 × 30 日新品男装 × 前 3 商品</p>
+        <label class="toggle">
+          <span>每批最多档口数</span>
+          <input type="number" id="num-shop-batch" class="batch-input" min="1" max="10" step="1" value="2">
+        </label>
+        <p class="hint" id="hint-download">网商园：10 家金牌档口 × 30 日新品男装 × 前 5 商品</p>
       </div>
       <div class="action-block">
         <div class="block-title">发布服装</div>

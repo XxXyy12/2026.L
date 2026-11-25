@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-import copy
 import threading
 from pathlib import Path
 from typing import Any
@@ -75,9 +74,6 @@ class Section:
     def get(self, key: str, default: Any = None) -> Any:
         return self._data.get(key, default)
 
-    def as_dict(self) -> dict[str, Any]:
-        return copy.deepcopy(self._data)
-
 
 class Config:
     def __init__(self, yaml_path: Path | None = None, env_path: Path | None = None) -> None:
@@ -130,6 +126,9 @@ class Config:
             raise ConfigError("wangshangyuan.shop_count 取值 1~20")
         if not (1 <= int(self.wangshangyuan.product_count) <= 10):
             raise ConfigError("wangshangyuan.product_count 取值 1~10")
+        batch = int(self.wangshangyuan.get("shop_batch_size", 2))
+        if not (1 <= batch <= int(self.wangshangyuan.shop_count)):
+            raise ConfigError("wangshangyuan.shop_batch_size 取值 1~shop_count")
         if self.pricing.markup_type not in ("percent", "fixed"):
             raise ConfigError("pricing.markup_type 只能是 percent 或 fixed")
         if int(self.pricing.markup_value) < 0:
@@ -170,6 +169,12 @@ class Config:
     def test_mode(self) -> bool:
         return bool(self.mode.test_mode)
 
+    def set_shop_batch_size(self, value: int) -> None:
+        """调整每批最多访问的档口数（下次任务生效）。"""
+        with self._lock:
+            self.raw["wangshangyuan"]["shop_batch_size"] = int(value)
+            self.wangshangyuan._data["shop_batch_size"] = int(value)  # type: ignore[attr-defined]
+
     def path_of(self, key: str) -> Path:
         """按 logging.file 之类的相对路径取绝对路径。"""
         return self._resolve(str(key))
@@ -182,6 +187,7 @@ class Config:
             "headless": bool(self.mode.headless),
             "shop_count": int(self.wangshangyuan.shop_count),
             "product_count": int(self.wangshangyuan.product_count),
+            "shop_batch_size": int(self.wangshangyuan.get("shop_batch_size", 2)),
             "max_product_total": int(self.job.max_product_total),
             "delay_min": float(self.timing.delay_min),
             "delay_max": float(self.timing.delay_max),

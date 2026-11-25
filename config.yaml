@@ -32,9 +32,9 @@ wangshangyuan:
   account_index: 2              # 1=主账号；2=备用账号（.env 中 WSY_USERNAME_2 / WSY_PASSWORD_2）
   login_entry_text: "登录"
   gold_stall_entry_text: "金牌档口"
-  shop_count: 5
-  product_count: 3
-  shop_batch_size: 2            # 每批最多访问的店铺数，降低触发频率限制
+  shop_count: 10
+  product_count: 5
+  shop_batch_size: 2            # 每批最多访问的店铺数（1~shop_count，界面可调，下次任务生效）
   between_shops_min: 30         # 店铺之间休整（秒）
   between_shops_max: 60
   filter_new_days: 30
@@ -105,7 +105,7 @@ logging:
   ui_poll_interval_ms: 2000
 
 job:
-  max_product_total: 15
+  max_product_total: 50          # 单次任务商品上限（10 店 × 5 商品）
   stop_on_first_failure: false
   skip_existing_success: true
   retry_per_step: 2

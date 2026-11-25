@@ -39,6 +39,8 @@ const els = {
   btnStop: $("btn-stop"),
   btnHumanDone: $("btn-human-done"),
   chkTestMode: $("chk-test-mode"),
+  numShopBatch: $("num-shop-batch"),
+  hintDownload: $("hint-download"),
   humanBanner: $("human-banner"),
   humanReason: $("human-reason"),
   humanHint: $("human-hint"),
@@ -112,6 +114,11 @@ function applyConfig(cfg) {
   els.badgeMode.textContent = cfg.test_mode ? "测试模式（截图代替发布）" : "真实模式（会点击发布）";
   els.badgeSim.textContent = cfg.simulated ? "模拟联调（未操作浏览器）" : "真实浏览器";
   els.badgeSim.style.display = cfg.simulated ? "" : "none";
+  els.numShopBatch.max = String(cfg.shop_count || 10);
+  if (document.activeElement !== els.numShopBatch) {
+    els.numShopBatch.value = String(cfg.shop_batch_size || 2);
+  }
+  els.hintDownload.textContent = `网商园：${cfg.shop_count} 家金牌档口 × 30 日新品男装 × 前 ${cfg.product_count} 商品`;
 }
 
 function applyButtons(state) {
@@ -122,6 +129,7 @@ function applyButtons(state) {
   els.btnPause.disabled = state !== "RUNNING";
   els.btnResume.disabled = !(state === "PAUSED" || state === "PAUSING");
   els.btnStop.disabled = !active || state === "STOPPING";
+  els.numShopBatch.disabled = active;
 
   const waiting = state === "WAITING_HUMAN";
   els.humanBanner.hidden = !waiting;
@@ -450,6 +458,26 @@ els.chkTestMode.addEventListener("change", async () => {
   } catch (err) {
     els.chkTestMode.checked = !els.chkTestMode.checked;
     showError(err.message);
+  }
+});
+
+els.numShopBatch.addEventListener("change", async () => {
+  const value = Number(els.numShopBatch.value);
+  const max = Number(els.numShopBatch.max) || 10;
+  if (!Number.isInteger(value) || value < 1 || value > max) {
+    showError(`每批档口数需在 1~${max} 之间`);
+    els.numShopBatch.value = String((config && config.shop_batch_size) || 2);
+    return;
+  }
+  try {
+    const data = await api("/api/config/shop-batch", {
+      method: "POST",
+      body: JSON.stringify({ value }),
+    });
+    applyConfig(data.config);
+  } catch (err) {
+    showError(err.message);
+    await refreshStatus();
   }
 });
 

@@ -61,10 +61,6 @@ class ControlFlags:
     def stop_requested(self) -> bool:
         return self._stop.is_set()
 
-    @property
-    def human_waiting(self) -> bool:
-        return self._human_waiting.is_set()
-
     def checkpoint(self) -> None:
         if self._stop.is_set():
             raise StopRequested()

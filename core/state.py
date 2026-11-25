@@ -25,9 +25,6 @@ class JobState(str, Enum):
     FAILED = "FAILED"
 
 
-TERMINAL_STATES = {JobState.STOPPED, JobState.COMPLETED, JobState.FAILED, JobState.IDLE}
-
-
 class RunType(str, Enum):
     DOWNLOAD = "download"
     PUBLISH = "publish"

@@ -12,7 +12,6 @@ from core.errors import AppError, ErrorCode
 class UnzipService:
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
-        self.images_dir_name = str(cfg.download.images_subdir)
         self.extensions = tuple(str(e).lower() for e in cfg.download.image_extensions)
 
     def extract(self, archive: Path, target_dir: Path) -> list[Path]:

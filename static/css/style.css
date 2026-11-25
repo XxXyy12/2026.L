@@ -122,6 +122,8 @@ main {
 .toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); cursor: pointer; }
 .toggle.small { font-size: 12px; }
 .toggle input { accent-color: var(--brand); }
+.toggle .batch-input { width: 56px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; color: var(--text); background: var(--panel); }
+.toggle .batch-input:disabled { background: var(--bg); color: var(--muted); }
 
 .status-grid {
   display: grid;

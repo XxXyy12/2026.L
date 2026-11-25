@@ -37,4 +37,3 @@ class NeedHumanError(AppError):
 
     def __init__(self, code: ErrorCode, message: str, hint: str = "") -> None:
         super().__init__(code, message, hint)
-        self.requires_human = True

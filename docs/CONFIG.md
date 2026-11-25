@@ -12,7 +12,7 @@
 | 运行模式 | `test_mode: true`，不真实发布；`simulated: false` 真实浏览器 | 用户要求 |
 | 站点 | 网商园 `https://www.wsy.com/`；闲鱼 `https://www.goofish.com/` | 用户确认 |
 | 下载根目录 | `downloads/`（项目内） | 用户要求 |
-| 店铺 / 每店商品 | 5 / 3（共 15）；每批最多 2 店，店间休整 30–60 秒 | 用户要求 / 防限流 |
+| 店铺 / 每店商品 | 10 / 5（共 50）；每批最多档口数 1~10（界面可调，默认 2），店间休整 30–60 秒 | 用户要求 / 只在需要时增加访问面 |
 | 登录保护 | 冷却 30 分钟、单次任务最多登录 1 次 | 用户要求（账号被标记） |
 | 随机间隔 | 1.5–4.0 秒 | 默认 |
 | 压缩包 | zip，约 10000KB；下载超时 180 秒 | Q-02 |
@@ -98,8 +98,9 @@ wangshangyuan:
   base_url: https://www.17zwd.com/     # 待确认实际域名，确认后更新
   login_entry_text: "用户登录"          # 文案定位（待实测）
   gold_stall_entry_text: "金牌档口"
-  shop_count: 5                        # 前 5 家店铺
-  product_count: 3                     # 每家前 3 个商品
+  shop_count: 10                       # 前 10 家店铺
+  product_count: 5                     # 每家前 5 个商品
+  shop_batch_size: 2                   # 每批最多访问的店铺数（1~shop_count，界面可调）
   filter_new_days: 30                  # “30 日新品”
   filter_category: "男装"
   download_button_text: "一键下载"
@@ -174,7 +175,7 @@ logging:
 
 # ============ 任务与重试 ============
 job:
-  max_product_total: 15         # 5 店 × 3 商品
+  max_product_total: 50         # 10 店 × 5 商品
   stop_on_first_failure: false  # true=任一失败即停
   skip_existing_success: true   # 已成功商品默认跳过
   retry_per_step: 2
@@ -195,15 +196,16 @@ server:
 | `mode.test_mode` | bool | — | `true` | 安全默认：先测试模式 |
 | `mode.headless` | bool | 生产必须 `false` | `false` | 违反时启动警告 |
 | `timing.delay_min/max` | float | `0.2 ≤ min < max ≤ 60` | 1.5 / 4.0 | 随机间隔 |
-| `wangshangyuan.shop_count` | int | `1 ≤ n ≤ 20` | 5 | 店铺数 |
-| `wangshangyuan.product_count` | int | `1 ≤ n ≤ 10` | 3 | 每店商品数 |
+| `wangshangyuan.shop_count` | int | `1 ≤ n ≤ 20` | 10 | 店铺数 |
+| `wangshangyuan.product_count` | int | `1 ≤ n ≤ 10` | 5 | 每店商品数 |
+| `wangshangyuan.shop_batch_size` | int | `1 ≤ n ≤ shop_count` | 2 | 每批最多档口数（界面可调，下次任务生效） |
 | `download.root_dir` | str | 可创建、可写 | `downloads` | 下载根目录 |
 | `pricing.markup_type` | enum | `percent/fixed` | `percent` | 加价方式 |
 | `pricing.markup_value` | float | `≥ 0` | 10 | 加价数值 |
 | `xianyu.max_images_upload` | int | `1 ≤ n ≤ 20` | 4 | 图片上限（已确认 4 张） |
 | `deepseek.enabled` | bool | 无 Key 时自动降级 | true | 关闭则直接模板 |
 | `logging.buffer_size` | int | `100 ≤ n ≤ 10000` | 2000 | 内存日志条数 |
-| `job.max_product_total` | int | `≤ shop_count*product_count` | 15 | 总处理上限 |
+| `job.max_product_total` | int | `≤ shop_count*product_count` | 50 | 总处理上限 |
 
 ## 5. 敏感信息处理
 

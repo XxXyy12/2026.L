@@ -25,11 +25,13 @@ class ShopPlanStore:
     def get(self, shop_url: str) -> dict[str, Any] | None:
         return self._load().get(shop_url)
 
-    def put(self, shop_url: str, shop_name: str, products: list[dict[str, Any]]) -> None:
+    def put(self, shop_url: str, shop_name: str, products: list[dict[str, Any]],
+            requested: int = 0) -> None:
         data = self._load()
         data[shop_url] = {
             "shop_name": shop_name,
             "products": products,
+            "requested": int(requested),
             "updated_at": datetime.now().isoformat(timespec="seconds"),
         }
         self.path.parent.mkdir(parents=True, exist_ok=True)

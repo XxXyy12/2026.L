@@ -8,7 +8,7 @@ from typing import Callable
 from automation.browser import BrowserSession
 from automation.selectors import XIANYU
 from config import Config
-from core.errors import AppError, ErrorCode, NeedHumanError
+from core.errors import ErrorCode, NeedHumanError
 from services.log_service import LogService
 
 

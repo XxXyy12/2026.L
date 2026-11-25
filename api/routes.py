@@ -114,6 +114,27 @@ def set_test_mode():
     return jsonify({"ok": True, "config": cfg.public_view()})
 
 
+@api_bp.post("/config/shop-batch")
+def set_shop_batch_size():
+    payload = request.get_json(silent=True) or {}
+    try:
+        value = int(payload.get("value"))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "value 必须是整数"}), 400
+    cfg = current_app.extensions["cfg"]
+    limit = int(cfg.wangshangyuan.shop_count)
+    if not (1 <= value <= limit):
+        return jsonify({"ok": False, "error": f"value 取值 1~{limit}"}), 400
+    cfg.set_shop_batch_size(value)
+    _logs().emit(
+        f"下载批次上限已设为每批 {value} 家档口（下次任务生效）",
+        module="config",
+        step="shop_batch",
+        status="INFO",
+    )
+    return jsonify({"ok": True, "config": cfg.public_view()})
+
+
 @api_bp.get("/products")
 def list_products():
     counts: dict[str, int] = {status: 0 for status in PUBLISH_STATUSES}

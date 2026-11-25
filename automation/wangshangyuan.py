@@ -34,7 +34,6 @@ class WangshangyuanJob(BaseJob):
         self.login_count = 0
         self.counters = {"success": 0, "failed": 0, "skipped": 0}
         self.shop_failures = 0
-        self.relogin_attempts = 0
         self.processed = 0
 
     # ---------- 主流程 ----------
@@ -51,16 +50,27 @@ class WangshangyuanJob(BaseJob):
         per_shop = int(self.cfg.wangshangyuan.product_count)
         batch_size = max(1, int(self.cfg.wangshangyuan.get("shop_batch_size", 2)))
         plan_items: list[tuple[int, dict[str, Any], list[dict[str, Any]]]] = []
-        skipped_shops = 0
 
         for shop_index, shop in enumerate(shops, start=1):
             if len(plan_items) >= batch_size:
                 break
             self.pause_if_needed()
             cached = self.plans.get(shop["url"])
+            products: list[dict[str, Any]] = []
+            need_collect = True
             if cached:
-                products = list(cached.get("products", []))[:per_shop]
-            else:
+                cached_limit = int(cached.get("requested", 0) or 0)
+                if cached_limit >= per_shop:
+                    products = list(cached.get("products", []))[:per_shop]
+                    need_collect = False
+                else:
+                    self.logs.emit(
+                        f"店铺 {shop['name']} 缓存按“前 {cached_limit} 商品”采集，低于当前“前 {per_shop} 商品”，重新采集",
+                        module=self.module,
+                        step="shop_plan_refresh",
+                        status="INFO",
+                    )
+            if need_collect:
                 try:
                     products = self.collect_shop_products(shop, shop_index)
                 except NeedHumanError:
@@ -76,11 +86,10 @@ class WangshangyuanJob(BaseJob):
                         error=f"{type(exc).__name__}: {exc}",
                     )
                     continue
-                self.plans.put(shop["url"], shop["name"], products)
+                self.plans.put(shop["url"], shop["name"], products, requested=per_shop)
 
             pending = [p for p in products if not self.find_existing(p["item_id"])]
             if not pending:
-                skipped_shops += 1
                 self.logs.emit(
                     f"店铺 {shop['name']} 的商品均已下载，跳过访问",
                     module=self.module,

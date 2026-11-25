@@ -25,7 +25,6 @@ class ProductStore:
         self.cfg = cfg
         self.root: Path = cfg.download_root
         self.index_path: Path = cfg.base_dir / "data" / "products.json"
-        self.max_name = int(cfg.download.name_max_length)
 
     # ---------- 目录 ----------
     def product_dir(self, shop_index: int, shop_name: str, product_index: int, title: str,

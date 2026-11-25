@@ -73,28 +73,3 @@ def step_scope(
             product_id=product_id,
             duration_ms=int((time.perf_counter() - started) * 1000),
         )
-
-
-def retry_action(ctx, module: str, step_name: str, action, attempts: int, backoff_sec: float,
-                 product_id: str = ""):
-    """对单个动作做有限重试；暂停/停止信号不重试。"""
-    last: Exception | None = None
-    for index in range(1, max(1, attempts) + 1):
-        try:
-            return action()
-        except (StopRequested, PauseRequested):
-            raise
-        except Exception as exc:  # noqa: BLE001
-            last = exc
-            ctx.logs.emit(
-                f"动作失败，第 {index}/{attempts} 次重试：{step_name}",
-                module=module,
-                step=step_name,
-                status="RETRY",
-                level="WARNING",
-                product_id=product_id,
-                error=f"{type(exc).__name__}: {exc}",
-            )
-            time.sleep(max(0.0, backoff_sec))
-    assert last is not None
-    raise last
