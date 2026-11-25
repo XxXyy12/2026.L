@@ -45,8 +45,16 @@ python -m venv .venv
 
 ## 4. 启动
 
+源码方式：
+
 ```powershell
 .venv\Scripts\python.exe app.py
+```
+
+桌面窗口方式（pywebview，不修改原有代码）：
+
+```powershell
+.venv\Scripts\pythonw.exe launcher.py
 ```
 
 打开 http://127.0.0.1:5000/ ，页面提供：
@@ -55,6 +63,17 @@ python -m venv .venv
 - 暂停 / 继续 / 停止
 - 测试模式开关
 - 任务状态、进度、实时日志、人工接管提示（“已处理，继续”）
+
+### 打包为单文件 exe
+
+```powershell
+.venv\Scripts\python.exe -m pip install pyinstaller
+.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --noconsole --name AutoPublisher `
+  --add-data "templates;templates" --add-data "static;static" --add-data "config.yaml;." `
+  --collect-all playwright --collect-all py7zr --collect-all webview launcher.py
+```
+
+产物：`dist\AutoPublisher.exe`（约 60MB）。首次运行会在 exe 同目录生成 `config.yaml`、`data/`、`downloads/`、`logs/`；**把 `.env` 复制到 exe 同目录**才能带上账号与 Key。分发 exe 前务必删除同目录的 `.env`、`data/`、`downloads/`、`logs/`。
 
 ## 5. 使用流程
 
